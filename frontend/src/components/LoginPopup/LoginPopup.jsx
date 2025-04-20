@@ -1,72 +1,82 @@
-import React, { useContext, useState } from 'react'
-import './LoginPopup.css'
+import React, { useState } from 'react'
 import { assets } from '../../assets/assets'
-import { StoreContext } from '../../Context/StoreContext'
-import axios from 'axios'
-import { toast } from 'react-toastify'
 
 const LoginPopup = ({ setShowLogin }) => {
+  const [currState, setCurrState] = useState('Sign Up')
 
-    const { setToken, url,loadCartData } = useContext(StoreContext)
-    const [currState, setCurrState] = useState("Sign Up");
-
-    const [data, setData] = useState({
-        name: "",
-        email: "",
-        password: ""
-    })
-
-    const onChangeHandler = (event) => {
-        const name = event.target.name
-        const value = event.target.value
-        setData(data => ({ ...data, [name]: value }))
-    }
-
-    const onLogin = async (e) => {
-        e.preventDefault()
-
-        let new_url = url;
-        if (currState === "Login") {
-            new_url += "/api/user/login";
-        }
-        else {
-            new_url += "/api/user/register"
-        }
-        const response = await axios.post(new_url, data);
-        if (response.data.success) {
-            setToken(response.data.token)
-            localStorage.setItem("token", response.data.token)
-            loadCartData({token:response.data.token})
-            setShowLogin(false)
-        }
-        else {
-            toast.error(response.data.message)
-        }
-    }
-
-    return (
-        <div className='login-popup'>
-            <form onSubmit={onLogin} className="login-popup-container">
-                <div className="login-popup-title">
-                    <h2>{currState}</h2> <img onClick={() => setShowLogin(false)} src={assets.cross_icon} alt="" />
-                </div>
-                <div className="login-popup-inputs">
-                    {currState === "Sign Up" ? <input name='name' onChange={onChangeHandler} value={data.name} type="text" placeholder='Your name' required /> : <></>}
-                    <input name='email' onChange={onChangeHandler} value={data.email} type="email" placeholder='Your email' />
-                    <input name='password' onChange={onChangeHandler} value={data.password} type="password" placeholder='Password' required />
-                </div>
-                <button>{currState === "Login" ? "Login" : "Create account"}</button>
-                <div className="login-popup-condition">
-                    <input type="checkbox" name="" id="" required/>
-                    <p>By continuing, i agree to the terms of use & privacy policy.</p>
-                </div>
-                {currState === "Login"
-                    ? <p>Create a new account? <span onClick={() => setCurrState('Sign Up')}>Click here</span></p>
-                    : <p>Already have an account? <span onClick={() => setCurrState('Login')}>Login here</span></p>
-                }
-            </form>
+  return (
+    <div className="absolute z-[1] w-full h-full bg-black/60 grid">
+      <div className="place-self-center w-[max(23vw,330px)] text-gray-500 bg-white flex flex-col gap-[25px] p-[25px_30px] rounded-md text-sm animate-fadeIn">
+        {/* Title */}
+        <div className="flex justify-between items-center text-black">
+          <h2>{currState}</h2>
+          <img
+            src={assets.cross_icon}
+            alt="close"
+            className="w-4 cursor-pointer"
+            onClick={() => setShowLogin(false)}
+          />
         </div>
-    )
+
+        {/* Inputs */}
+        <div className="flex flex-col gap-5">
+          {currState === 'Sign Up' && (
+            <input
+              type="text"
+              placeholder="Your name"
+              className="outline-none border border-[#C9C9C9] p-2 rounded"
+            />
+          )}
+          <input
+            type="email"
+            placeholder="Your email"
+            className="outline-none border border-[#C9C9C9] p-2 rounded"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="outline-none border border-[#C9C9C9] p-2 rounded"
+          />
+        </div>
+
+        {/* Button */}
+        <button className="border-none p-2 rounded text-white bg-[#FF4C24] text-base cursor-pointer">
+          {currState === 'Login' ? 'Login' : 'Create account'}
+        </button>
+
+        {/* Terms */}
+        <div className="flex items-start gap-2 -mt-4">
+          <input type="checkbox" className="mt-[5px]" />
+          <p>
+            By continuing, I agree to the terms of use & privacy policy.
+          </p>
+        </div>
+
+        {/* Toggle link */}
+        {currState === 'Login' ? (
+          <p>
+            Create a new account?{' '}
+            <span
+              onClick={() => setCurrState('Sign Up')}
+              className="text-[#FF4C24] font-medium cursor-pointer"
+            >
+              Click here
+            </span>
+          </p>
+        ) : (
+          <p>
+            Already have an account?{' '}
+            <span
+              onClick={() => setCurrState('Login')}
+              className="text-[#FF4C24] font-medium cursor-pointer"
+            >
+              Login here
+            </span>
+          </p>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default LoginPopup
